@@ -26,11 +26,9 @@ func main() {
 
 	scanner := bufio.NewScanner(file)
 
-	var words []string
 	var doesExist bool
 
 	for scanner.Scan() {
-		words = append(words, scanner.Text())
 		line := scanner.Text()
 		if bytes.Contains([]byte(line), []byte(*wordFlag)) {
 			doesExist = true
@@ -47,19 +45,15 @@ func main() {
 		log.Fatalf("This word already exists in words.txt file")
 	}
 
-	newWord := *wordFlag + " - " + *defFlag
-	words = append(words, newWord)
+	newWord := *wordFlag + " - " + *defFlag + "\n"
 
-	file, err = os.OpenFile("words.txt", os.O_WRONLY, 0644)
+	file, err = os.OpenFile("words.txt", os.O_APPEND|os.O_WRONLY, 0644)
 	if err != nil {
 		fmt.Printf("Error creating a file: %v", err)
 	}
 	writer := bufio.NewWriter(file)
 
-	for _, line := range words {
-		_,_ = writer.WriteString(line + "\n")
-		fmt.Println("??")
-	}
+	writer.WriteString(newWord)
 
 	writer.Flush()
 	file.Close()
