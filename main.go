@@ -7,19 +7,25 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
 )
 
 func main() {
-	wordFlag := flag.String("word", "", "word name")
-	defFlag := flag.String("def", "", "definition of the word")
+	wordFlag := os.Args[1]
+	defFlag := os.Args[2]
 
 	flag.Parse()
 
-	if *wordFlag == "" || *defFlag == "" {
+	if wordFlag == "" || defFlag == "" {
 		log.Fatal("Please specify a word and definition first.")
 	}
 
-	file, err := os.Open("words.txt")
+	dir, err := filepath.Abs("development/words/words.txt")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	file, err := os.Open(dir)
 	if err != nil {
 		log.Printf("Unable to open words.txt: %v", err)
 	}
@@ -30,7 +36,7 @@ func main() {
 
 	for scanner.Scan() {
 		line := scanner.Text()
-		if bytes.Contains([]byte(line), []byte(*wordFlag)) {
+		if bytes.Contains([]byte(line), []byte(wordFlag)) {
 			doesExist = true
 		}
 	}
@@ -45,9 +51,9 @@ func main() {
 		log.Fatalf("This word already exists in words.txt file")
 	}
 
-	newWord := *wordFlag + " - " + *defFlag + "\n"
+	newWord := wordFlag + " - " + defFlag + "\n"
 
-	file, err = os.OpenFile("words.txt", os.O_APPEND|os.O_WRONLY, 0644)
+	file, err = os.OpenFile(dir, os.O_APPEND|os.O_WRONLY, 0644)
 	if err != nil {
 		fmt.Printf("Error creating a file: %v", err)
 	}
