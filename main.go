@@ -4,28 +4,34 @@ import (
 	"bufio"
 	"bytes"
 	"flag"
-	"fmt"
 	"log"
 	"os"
 	"path/filepath"
 )
 
 func main() {
-	wordFlag := os.Args[1]
-	defFlag := os.Args[2]
 
-	flag.Parse()
-
-	if wordFlag == "" || defFlag == "" {
+    var wordFlag string 
+    var defFlag string
+    
+    if len(os.Args) >= 3 {
+	    wordFlag = os.Args[1]
+	    defFlag = os.Args[2]
+	    flag.Parse()
+    } else {
 		log.Fatal("Please specify a word and definition first.")
-	}
+    }
 
-	dir, err := filepath.Abs("development/words/words.txt")
+
+    var err error
+    var dir string
+
+	dir, err = filepath.Abs("development/words/words.txt")
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	file, err := os.Open(dir)
+	file, err := os.OpenFile(dir, os.O_APPEND|os.O_WRONLY, 0644)
 	if err != nil {
 		log.Printf("Unable to open words.txt: %v", err)
 	}
@@ -45,7 +51,6 @@ func main() {
 		log.Printf("Scanner returned error: %v", err)
 	}
 
-	file.Close()
 
 	if doesExist {
 		log.Fatalf("This word already exists in words.txt file")
@@ -53,14 +58,16 @@ func main() {
 
 	newWord := wordFlag + " - " + defFlag + "\n"
 
-	file, err = os.OpenFile(dir, os.O_APPEND|os.O_WRONLY, 0644)
-	if err != nil {
-		fmt.Printf("Error creating a file: %v", err)
-	}
 	writer := bufio.NewWriter(file)
 
-	writer.WriteString(newWord)
+	if _, err = writer.WriteString(newWord); err != nil {
+		log.Printf("Unable to write new word. \n Error: %v", err)
+	}
 
-	writer.Flush()
-	file.Close()
+	err = writer.Flush()
+	if err != nil {
+		log.Printf("Failed to execute .Flush() method.\n Error: %v", err)
+	}
+
+	_ = file.Close()
 }
