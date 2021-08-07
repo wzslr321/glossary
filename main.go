@@ -4,10 +4,21 @@ import (
 	"bufio"
 	"bytes"
 	"flag"
+	"github.com/gomodule/redigo/redis"
 	"log"
 	"os"
 	"path/filepath"
 )
+
+type application struct {
+	pool *redis.Pool
+}
+
+var app *application
+
+func init() {
+	app.initRedis()
+}
 
 func main() {
 
