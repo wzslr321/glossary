@@ -53,7 +53,8 @@ code front-end though. Actual functionality is enough for my current needs.
 <b> If someone is willing to code front-end, I can work on this project a little bit more 
 and create much better API. </b>
 
-Of course, <i> words.txt </i> are going to steady be updated with new words. 
+Of course, <i> words.txt </i> are going to steady be updated with new words. <br>
+If you want to add your own words, feel free to do it in new_words.txt file and create a PR.
 
 ---
 
