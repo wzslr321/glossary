@@ -25,7 +25,8 @@ func initRouter() *gin.Engine {
 			byteValue, _ := json.Marshal(val)
 			Set(word, byteValue)
 
-			file, err := os.OpenFile("words.txt", os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0644)
+			path := dir + "words.txt"
+			file, err := os.OpenFile(path, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0644)
 			defer file.Close()
 			if err != nil {
 				log.Printf("Unable to open words.txt: %v", err)
@@ -69,8 +70,9 @@ func initRouter() *gin.Engine {
 }
 
 func fetchNewWords() error {
+	path := dir + "new_words.txt"
 
-	file, err := os.OpenFile("new_words.txt", os.O_APPEND|os.O_CREATE|os.O_RDWR, 0644)
+	file, err := os.OpenFile(path, os.O_APPEND|os.O_CREATE|os.O_RDWR, 0644)
 	defer file.Close()
 	if err != nil {
 		log.Printf("Unable to open words.txt: %v", err)
@@ -93,13 +95,17 @@ func fetchNewWords() error {
 		log.Printf("Scanner returned error: %v", err)
 	}
 
-	fetchNewWordsWithTxt(newWords)
+	if err = fetchNewWordsWithTxt(newWords); err != nil {
+		log.Printf("Failed to fetch new words: %v", err)
+	}
 
 	return err
 }
 
 func fetchNewWordsWithTxt(words []string) error {
-	file, err := os.OpenFile("words.txt", os.O_APPEND|os.O_RDWR|os.O_CREATE, 0644)
+	path := dir + "words.txt"
+
+	file, err := os.OpenFile(path, os.O_APPEND|os.O_RDWR|os.O_CREATE, 0644)
 	defer file.Close()
 	if err != nil {
 		log.Printf("Unable to open words.txt: %v", err)

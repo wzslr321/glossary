@@ -8,6 +8,8 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"path/filepath"
+	"runtime"
 	"time"
 )
 
@@ -15,12 +17,18 @@ func init() {
 	initRedis()
 }
 
+var dir = "/server/words/"
+
 func main() {
 
-	word := flag.String("word", "", "new word")
-	flag.Parse()
+	var word string
 
-	if *word != "" {
+	if len(os.Args) > 1 {
+		word = os.Args[1]
+		flag.Parse()
+	}
+
+	if word != "" {
 		if err := addNewWords(word); err != nil {
 			fmt.Printf("Error occured while adding new words: %v", err)
 		}
@@ -39,9 +47,14 @@ func main() {
 	}
 }
 
-func addNewWords(word *string) error {
+func addNewWords(word string) error {
+	_, b, _, _ := runtime.Caller(0)
+	basePath := filepath.Dir(b)
+	localDir := filepath.Dir(basePath)
 
-	file, err := os.OpenFile("new_words.txt", os.O_APPEND|os.O_CREATE|os.O_RDWR, 0644)
+	path := localDir + "/server/words/new_words.txt"
+
+	file, err := os.OpenFile(path, os.O_APPEND|os.O_CREATE|os.O_RDWR, 0644)
 	defer file.Close()
 	if err != nil {
 		log.Printf("Unable to open words.txt: %v", err)
@@ -51,7 +64,7 @@ func addNewWords(word *string) error {
 	var doesExist bool
 	for scanner.Scan() {
 		line := scanner.Text()
-		if bytes.Contains([]byte(line), []byte(*word)) {
+		if bytes.Contains([]byte(line), []byte(word)) {
 			doesExist = true
 		}
 	}
@@ -64,7 +77,7 @@ func addNewWords(word *string) error {
 
 	writer := bufio.NewWriter(file)
 
-	if _, err = writer.WriteString(*word + "\n"); err != nil {
+	if _, err = writer.WriteString(word + "\n"); err != nil {
 		log.Printf("Unable to write new word. \n Error: %v", err)
 	}
 

@@ -14,11 +14,13 @@ services:
       retries: 30
   server:
     build:
-      context: ./
+      context: server
     environment:
-      GIN_MODE: development
+      GIN_MODE: debug
     ports:
       - "8080:8080"
     depends_on:
       redis:
        condition: service_healthy
+    volumes:
+      - ./server:/server
