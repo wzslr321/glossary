@@ -5,8 +5,10 @@ import (
 	"log"
 )
 
-func (a *application) initRedis() {
-	a.pool = &redis.Pool{
+var pool *redis.Pool
+
+func  initRedis() {
+	pool = &redis.Pool{
 		MaxIdle:     30,
 		MaxActive:   30,
 		IdleTimeout: 200,
@@ -19,16 +21,13 @@ func (a *application) initRedis() {
 		},
 	}
 
-	app = &application{
-		pool: a.pool,
-	}
 }
 
-func (a *application) Get(key string) ([]byte, error) {
-	conn := app.pool.Get()
+func Get(key string) ([]byte, error) {
+	conn := pool.Get()
 	defer conn.Close()
 
-	exists, err := app.Exists(key)
+	exists, err := Exists(key)
 
 	var data []byte
 
@@ -44,8 +43,8 @@ func (a *application) Get(key string) ([]byte, error) {
 	return data, err
 }
 
-func (a *application) Exists(key string) (bool, error) {
-	conn := a.pool.Get()
+func  Exists(key string) (bool, error) {
+	conn := pool.Get()
 	defer conn.Close()
 
 	ok, err := redis.Bool(conn.Do("EXISTS", key))
