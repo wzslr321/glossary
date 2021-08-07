@@ -1,6 +1,8 @@
 package main
 
 import (
+	"bufio"
+	"bytes"
 	"flag"
 	"fmt"
 	"log"
@@ -13,59 +15,56 @@ func init() {
 	initRedis()
 }
 
-/*
 func main() {
 
-    var wordFlag string
-    var defFlag string
+	word := flag.String("word", "", "new word")
+	flag.Parse()
 
-    if len(os.Args) >= 3 {
-	    wordFlag = os.Args[1]
-	    defFlag = os.Args[2]
-	    flag.Parse()
-    } else {
-		log.Fatal("Please specify a word and definition first.")
-    }
+	if *word != "" {
+		if err := addNewWords(word); err != nil {
+			fmt.Printf("Error occured while adding new words: %v", err)
+		}
+	} else {
+		router := initRouter()
 
+		s := &http.Server{
+			Addr:           ":8080",
+			Handler:        router,
+			ReadTimeout:    10 * time.Second,
+			WriteTimeout:   10 * time.Second,
+			MaxHeaderBytes: 1 << 20,
+		}
 
-    var err error
-    var dir string
-
-	dir, err = filepath.Abs("development/words/words.txt")
-	if err != nil {
-		log.Fatal(err)
+		s.ListenAndServe()
 	}
+}
 
-	file, err := os.OpenFile(dir, os.O_APPEND|os.O_WRONLY, 0644)
+func addNewWords(word *string) error {
+
+	file, err := os.OpenFile("new_words.txt", os.O_APPEND|os.O_CREATE|os.O_RDWR, 0644)
+	defer file.Close()
 	if err != nil {
 		log.Printf("Unable to open words.txt: %v", err)
 	}
 
 	scanner := bufio.NewScanner(file)
-
 	var doesExist bool
-
 	for scanner.Scan() {
 		line := scanner.Text()
-		if bytes.Contains([]byte(line), []byte(wordFlag)) {
+		if bytes.Contains([]byte(line), []byte(*word)) {
 			doesExist = true
 		}
 	}
-
 	if err = scanner.Err(); err != nil {
 		log.Printf("Scanner returned error: %v", err)
 	}
-
-
 	if doesExist {
 		log.Fatalf("This word already exists in words.txt file")
 	}
 
-	newWord := wordFlag + " - " + defFlag + "\n"
-
 	writer := bufio.NewWriter(file)
 
-	if _, err = writer.WriteString(newWord); err != nil {
+	if _, err = writer.WriteString(*word + "\n"); err != nil {
 		log.Printf("Unable to write new word. \n Error: %v", err)
 	}
 
@@ -74,39 +73,5 @@ func main() {
 		log.Printf("Failed to execute .Flush() method.\n Error: %v", err)
 	}
 
-	_ = file.Close()
-}
-*/
-
-func main() {
-
-	router := initRouter()
-
-	s := &http.Server{
-		Addr:           ":8080",
-		Handler:        router,
-		ReadTimeout:    10 * time.Second,
-		WriteTimeout:   10 * time.Second,
-		MaxHeaderBytes: 1 << 20,
-	}
-
-	s.ListenAndServe()
-
-	var wordFlag string
-	// var defFlag string
-
-	if len(os.Args) >= 1 {
-		wordFlag = os.Args[0]
-		// defFlag = os.Args[2]
-		flag.Parse()
-	} else {
-		log.Fatal("Please specify a word and definition first.")
-	}
-
-	ok, err := Exists(wordFlag)
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	fmt.Println(ok)
+	return err
 }
