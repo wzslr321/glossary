@@ -50,3 +50,4 @@ attainable
 amplify
 tension
 jitter
+ample

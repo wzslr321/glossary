@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"flag"
 	"fmt"
+	"github.com/wzslr321/words/cli"
 	"log"
 	"net/http"
 	"os"
@@ -14,13 +15,15 @@ import (
 )
 
 func init() {
-	initRedis()
+	// initRedis()
 }
 
 var dir = "/server/words/"
 
 func main() {
 
+	actions := cli.RegisterActions()
+	actions.Add = os.Args[1]
 	var word string
 
 	if len(os.Args) > 1 {
@@ -33,11 +36,11 @@ func main() {
 			fmt.Printf("Error occured while adding new words: %v", err)
 		}
 	} else {
-		router := initRouter()
+		// router := initRouter()
 
 		s := &http.Server{
-			Addr:           ":8080",
-			Handler:        router,
+			Addr: ":8080",
+			// Handler:        router,
 			ReadTimeout:    10 * time.Second,
 			WriteTimeout:   10 * time.Second,
 			MaxHeaderBytes: 1 << 20,
