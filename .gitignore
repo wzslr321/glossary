@@ -1,3 +1,5 @@
 .idea/
 private/
-cli/tmp/
+cli/target/
+cli/Cargo.lock
+
