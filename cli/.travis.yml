@@ -5,4 +5,4 @@ rust:
 before_script:
   - rustup component add clippy
 script:
-  - cd cli && cargo clippy -- -D warnings
+  - cargo clippy -- -D warnings
