@@ -6,21 +6,17 @@ services:
       - "6379:6379"
     volumes:
       - ./private/data/redis:/data
-    command: redis-server --appendonly yes
+    command: redis-cli --appendonly yes
     healthcheck:
       test: [ "CMD", "redis-cli", "ping" ]
       interval: 1s
       timeout: 3s
       retries: 30
-  server:
+  cli:
     build:
-      context: server
-    environment:
-      GIN_MODE: debug
-    ports:
-      - "8080:8080"
-    depends_on:
-      redis:
-       condition: service_healthy
+      context: cli
     volumes:
-      - ./server:/server
+      - ./cli/:/usr/src/cli
+  scrapper:
+    build:
+      context: scrapper
